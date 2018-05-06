@@ -1,0 +1,58 @@
+#controls {
+  padding-bottom: 24em;
+}
+
+#controls > div {
+  margin: 0 0.5em;
+}
+
+h1 {
+  flex-grow: 1;
+  font-family: "Roboto", sans-serif;
+  font-size: 1.5em;
+  font-weight: 500;
+  text-align: center;
+}
+
+header {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+}
+
+header > div {
+  padding: 0 1em;
+}
+
+#notes {
+  text-align: left;
+}
+
+@media screen {
+  .amount {
+    width: 256px;
+  }
+
+  #notes {
+    display: none;
+  }
+}
+
+@media print {
+  .amount {
+    width: 128px;
+  }
+
+  #controls {
+    display: none;
+  }
+
+  td > div > div {
+    display: none;
+  }
+
+  tr > td:first-child,
+  tr > th:first-child {
+    display: none;
+  }
+}
