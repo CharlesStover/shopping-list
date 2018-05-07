@@ -1,7 +1,8 @@
-import RaisedButton from 'material-ui/RaisedButton';
+import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
 import React from 'react';
 import Table from '../table/table';
+import './shopping-list.css';
 
 const columns = [
   {
@@ -23,25 +24,28 @@ export default class ShoppingListView extends React.PureComponent {
   get tfoot() {
     if (this.props.selectedRows.length > 0) {
       return (
-        <RaisedButton
+        <Button
           label="Delete Selected"
           onClick={this.props.onDeleteSelected}
           secondary
+          variant="raised"
         />
       );
     }
     return (
       <form onSubmit={this.props.onItemAdd}>
         <TextField
-          label="Item"
+          label="Add an Item"
           name="item"
-          onChange={this.onItemChange}
+          onChange={this.props.onItemChange}
           value={this.props.itemValue}
         />
-        <RaisedButton
+        <Button
+          className="shopping-list-button"
           label="Add"
           primary
           type="submit"
+          variant="raised"
         />
       </form>
     );

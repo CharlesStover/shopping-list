@@ -1,3 +1,11 @@
+.tfoot {
+  padding-bottom: 4em;
+}
+
+#controls > div {
+  margin: 0 0.5em;
+}
+
 @media screen {
   .action {
     width: 256px;

@@ -1,11 +1,3 @@
-#controls {
-  padding-bottom: 4em;
-}
-
-#controls > div {
-  margin: 0 0.5em;
-}
-
 h1, h2 {
   flex-grow: 1;
   font-family: "Roboto", sans-serif;

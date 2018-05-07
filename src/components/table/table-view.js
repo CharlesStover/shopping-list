@@ -1,4 +1,4 @@
-import { Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table';
+import Table, { TableBody, TableCell, TableFooter, TableHead, TableRow } from 'material-ui/Table';
 import React from 'react';
 import './table.css';
 
@@ -20,7 +20,7 @@ export default class TableView extends React.PureComponent {
   mapColumns(row, index) {
     return this.props.columns.map(
       ({ key }, index) =>
-        <TableRowColumn
+        <TableCell
           children={row[key]}
           className={index > 0 ? 'action' : null}
           key={index}
@@ -42,9 +42,9 @@ export default class TableView extends React.PureComponent {
     if (this.props.rows.length === 0) {
       return (
         <TableRow selectable={false}>
-          <TableRowColumn colSpan="2">
+          <TableCell colSpan="2">
             <em children="There are no items in this list." />
-          </TableRowColumn>
+          </TableCell>
         </TableRow>
       );
     }
@@ -53,7 +53,7 @@ export default class TableView extends React.PureComponent {
 
   get theadCells() {
     return this.props.columns.map(({ title }, index) =>
-      <TableHeaderColumn
+      <TableCell
         children={title + ':'}
         className={index > 0 ? 'action' : null}
         key={index}
@@ -66,13 +66,13 @@ export default class TableView extends React.PureComponent {
       <section>
         <header children={this.props.header} />
         <Table
-          allRowsSelected={this.props.allItemRowsSelected}
+          allRowsSelected={this.props.allRowsSelected}
           multiSelectable
           onRowSelection={this.props.onRowSelection}
         >
-          <TableHeader enableSelectAll={this.props.rows.length > 1}>
+          <TableHead enableSelectAll={this.props.rows.length > 1}>
             <TableRow children={this.theadCells} />
-          </TableHeader>
+          </TableHead>
           <TableBody
             children={this.tbody}
             deselectOnClickaway={false}
@@ -80,8 +80,9 @@ export default class TableView extends React.PureComponent {
           />
           <TableFooter>
             <TableRow>
-              <TableRowColumn
+              <TableCell
                 children={this.props.tfoot}
+                className="tfoot"
                 colSpan={this.props.columns.length}
                 style={tfootStyle}
               />

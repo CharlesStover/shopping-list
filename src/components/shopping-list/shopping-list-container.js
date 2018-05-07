@@ -35,13 +35,11 @@ export default class ShoppingListerContainer extends React.PureComponent {
     this.setState({ selectedRows: NO_ROWS });
   }
 
-  onItemAdd({ preventDefault }) {
-    preventDefault();
+  onItemAdd(e) {
+    e.preventDefault();
     if (!/^\s*$/.test(this.state.itemValue)) {
-      this.props.onAdd(this.state.itemValue);
-      this.setItems({
-        itemValue: ''
-      });
+      this.props.onAdd(this.state.itemValue.replace(/\s+$/, ''));
+      this.setState({ itemValue: '' });
     }
     else if (this.state.itemValue !== '') {
       this.setState({ itemValue: '' });
@@ -49,9 +47,9 @@ export default class ShoppingListerContainer extends React.PureComponent {
     return false;
   }
 
-  onItemChange(itemValue) {
+  onItemChange({ target: { value } }) {
     this.setState({
-      itemValue: itemValue.trim()
+      itemValue: value.replace(/^\s+/, '')
     });
   }
 

@@ -1,4 +1,4 @@
-import RaisedButton from 'material-ui/RaisedButton';
+import Button from 'material-ui/Button';
 import React from 'react';
 import Table from '../table/table';
 
@@ -20,17 +20,19 @@ export default class ShoppingListView extends React.PureComponent {
       return null;
     }
     return [
-      <RaisedButton
+      <Button
         key={0}
         label="Add Selected"
         onClick={this.props.onAddSelected}
         primary
+        variant="raised"
       />,
-      <RaisedButton
+      <Button
         key={1}
         label="Delete Selected"
         onClick={this.props.onDeleteSelected}
         secondary
+        variant="raised"
       />
     ];
   }

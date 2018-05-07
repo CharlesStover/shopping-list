@@ -14,6 +14,7 @@ class App extends React.PureComponent {
   constructor(props) {
     super(props);
     this.filterListFromHistory = this.filterListFromHistory.bind(this);
+    this.onListAdd = this.onListAdd.bind(this);
     const localStorageHistory = localStorage.getItem('history');
     const localStorageList = localStorage.getItem('list');
     this.state = {

@@ -23,13 +23,18 @@ export default class TableContainer extends React.PureComponent {
   onRowSelection(selectedRows) {
     if (this.props.onRowSelection) {
       if (selectedRows === 'all') {
-        this.props.onRowSelection(this.props.rows);
+        this.props.onRowSelection(this.props.rows.map((row) => row[this.props.columns[0].key]));
       }
       else if (selectedRows === 'none') {
         this.props.onRowSelection(NO_ROWS);
       }
       else {
-        this.props.onRowSelection(selectedRows.map((index) => this.props.rows[index]));
+        this.props.onRowSelection(
+          selectedRows.map(
+            (index) =>
+              this.props.rows[index][this.props.columns[0].key]
+          )
+        );
       }
     }
   }
@@ -43,6 +48,7 @@ export default class TableContainer extends React.PureComponent {
         onRowSelection={this.onRowSelection}
         rows={this.props.rows}
         selectedRows={this.props.selectedRows}
+        tfoot={this.props.tfoot}
       />
     );
   }
