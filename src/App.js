@@ -1,106 +1,110 @@
-import AutoComplete from 'material-ui/AutoComplete';
 import RaisedButton from 'material-ui/RaisedButton';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import { Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table';
 import TextField from 'material-ui/TextField';
 import React from 'react';
+import displayDate from './constants/display-date';
+import historySort from './constants/history-sort';
+import itemSort from './constants/item-sort';
 import './App.css';
 
-const localStorageHistory = localStorage.getItem('history');
-const localStorageItems = localStorage.getItem('items');
-const history = localStorageHistory ? JSON.parse(localStorageHistory) : [];
-const items = localStorageItems ? JSON.parse(localStorageItems) : [];
-
-const displayDate = () => {
-  const d = new Date();
-  const suffix = [];
-  suffix[1] = 'st';
-  suffix[2] = 'nd';
-  suffix[3] = 'rd';
-  suffix[21] = 'st';
-  suffix[22] = 'nd';
-  suffix[23] = 'rd';
-  suffix[31] = 'st';
-  const day = d.getDate();
-  return (
-    ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][d.getMonth()] + ' ' +
-    day +
-    (
-      suffix.hasOwnProperty(day)
-      ? suffix[day]
-      : 'th'
-    )
-  );
+const tfootStyle = {
+  textAlign: 'center'
 };
 
 class App extends React.PureComponent {
 
   constructor(props) {
     super(props);
-    this.historyFilter = this.historyFilter.bind(this);
-    this.item = this.item.bind(this);
+    this.filterItemsFromHistory = this.filterItemsFromHistory.bind(this);
+    this.mapHistory = this.mapHistory.bind(this);
+    this.mapItems = this.mapItems.bind(this);
     this.onAddItemButtonClick = this.onAddItemButtonClick.bind(this);
-    this.onAmountChange = this.onAmountChange.bind(this);
+    this.onDeleteHistories = [];
     this.onDeleteHistory = this.onDeleteHistory.bind(this);
-    this.onDeleteSelected = this.onDeleteSelected.bind(this);
-    this.onRowSelection = this.onRowSelection.bind(this);
+    this.onDeleteSelectedItems = this.onDeleteSelectedItems.bind(this);
+    this.onHistoryRowSelection = this.onHistoryRowSelection.bind(this);
+    this.onItemRowSelection = this.onItemRowSelection.bind(this);
+    this.onQuantityChanges = [];
     this.onTextFieldChange = this.onTextFieldChange.bind(this);
+    const localStorageHistory = localStorage.getItem('history');
+    const localStorageItems = localStorage.getItem('items');
     this.state = {
-      history,
-      items,
-      selectedRows: [],
+      history:
+        localStorageHistory ?
+          JSON.parse(localStorageHistory) :
+          [],
+      items:
+        localStorageItems ?
+          JSON.parse(localStorageItems) :
+          [],
+      selectedHistoryRows: [],
+      selectedItemRows: [],
       textFieldValue: ''
     };
   }
 
-  get allRowsSelected() {
+  get allHistoryRowsSelected() {
     return (
-      this.state.items.length > 1 &&
-      this.state.items.length === this.state.selectedRows.length
+      this.unusedHistory.length > 1 &&
+      this.unusedHistory.length === this.state.selectedHistoryRows.length
     );
   }
 
-  get dataSource() {
-    return this.state.history.filter(this.historyFilter);
+  get allItemRowsSelected() {
+    return (
+      this.state.items.length > 1 &&
+      this.state.items.length === this.state.selectedItemRows.length
+    );
   }
 
-  historyFilter(item) {
-    for (const i of this.state.items) {
-      if (i[0] === item) {
+  filterItemsFromHistory(historyItem) {
+    for (const [ item ] of this.state.items) {
+      if (item === historyItem) {
         return false;
       }
     }
     return true;
   }
 
-  historySort(a, b) {
-    a = a.toLowerCase();
-    b = b.toLowerCase();
-    if (a < b) {
-      return -1;
-    }
-    if (a > b) {
-      return 1;
-    }
-    return 0;
+  isHistorySelected(item) {
+    return this.state.selectedHistoryRows.indexOf(item) !== -1;
   }
 
-  isSelected(index) {
-    return this.state.selectedRows.indexOf(index) !== -1;
+  isItemSelected(item) {
+    return this.state.selectedItemRows.indexOf(item) !== -1;
   }
 
-  item([ item, amount ], index) {
+  mapHistory(item, index) {
     return (
       <TableRow
         key={item}
-        selected={this.isSelected(index)}
+        selected={this.isHistorySelected(item)}
+      >
+        <TableRowColumn children={item} />
+        <TableRowColumn className="amount">
+          <RaisedButton
+            label="Delete"
+            onClick={this.onDeleteHistory(index)}
+            secondary
+          />
+        </TableRowColumn>
+      </TableRow>
+    );
+  }
+
+  mapItems([ item, amount ], index) {
+    return (
+      <TableRow
+        key={item}
+        selected={this.isItemSelected(item)}
       >
         <TableRowColumn children={item} />
         <TableRowColumn className="amount">
           <TextField
             min={1}
             name="amount"
-            onChange={(event) => this.onAmountChange(index, parseInt(event.target.value, 10))}
+            onChange={this.onQuantityChange(index)}
             onClick={this.stopPropagation}
             size={1}
             step={1}
@@ -109,62 +113,48 @@ class App extends React.PureComponent {
           />
         </TableRowColumn>
       </TableRow>
-    )
-  }
-
-  itemSort(a, b) {
-    if (a[0] < b[0]) {
-      return -1;
-    }
-    if (a[0] > b[0]) {
-      return 1;
-    }
-    return 0;
+    );
   }
 
   onAddItemButtonClick() {
-    const item = this.state.textFieldValue;
-    const history = this.state.history.slice(0);
-    let found = false;
-    for (const h of history) {
-      if (item === h) {
-        found = true;
-        break;
+    if (!/^\s*$/.test(this.state.textFieldValue)) {
+      const item = this.state.textFieldValue;
+      const history = this.state.history.slice(0);
+      let found = false;
+      for (const h of history) {
+        if (item === h) {
+          found = true;
+          break;
+        }
       }
-    }
-    if (!found) {
-      history.push(item);
-      history.sort(this.historySort);
-      localStorage.setItem('history', JSON.stringify(history));
-    }
-    this.setItems(
-      this.state.items.concat([[item, 1]]).sort(this.itemSort),
-      {
-        history,
-        textFieldValue: ''
+      if (!found) {
+        history.push(item);
+        history.sort(historySort);
+        localStorage.setItem('history', JSON.stringify(history));
       }
-    );
+      this.setItems(
+        this.state.items.concat([ [ item, 1 ] ]).sort(itemSort),
+        {
+          history,
+          textFieldValue: ''
+        }
+      );
+    }
   }
 
-  onAmountChange(index, amount) {
-    this.setItems(
-      this.state.items.slice(0, index)
-      .concat([[this.state.items[index][0], amount]])
-      .concat(this.state.items.slice(index + 1))
-    );
+  onDeleteHistory(index) {
+    if (!this.onDeleteHistories[index]) {
+      this.onDeleteHistories[index] = () => {
+        const history = this.state.history.slice(0);
+        history.splice(index, 1);
+        localStorage.setItem('history', JSON.stringify(history));
+        this.setState({ history });
+      };
+    }
+    return this.onDeleteHistories[index];
   }
 
-  onDeleteHistory() {
-    const history = this.state.history.slice(0);
-    history.splice(this.state.history.indexOf(this.state.textFieldValue), 1);
-    localStorage.setItem('history', JSON.stringify(history));
-    this.setState({
-      history,
-      textFieldValue: ''
-    });
-  }
-
-  onDeleteSelected() {
+  onDeleteSelectedItems() {
     const items = this.state.items.slice(0);
     for (let x = this.state.selectedRows.length - 1; x >= 0; x--) {
       items.splice(this.state.selectedRows[x], 1);
@@ -175,22 +165,49 @@ class App extends React.PureComponent {
     )
   }
 
-  onRowSelection(selectedRows) {
+  onHistoryRowSelection(selectedRows) {
     if (selectedRows === 'all') {
-      selectedRows = this.state.items.map((item, index) => index);
+      this.setState({ selectedHistoryRows: this.unusedHistory });
     }
     else if (selectedRows === 'none') {
-      selectedRows = [];
+      this.setState({ selectedHistoryRows: [] });
     }
-    this.setState({ selectedRows });
+    else {
+      this.setState({ selectedHistoryRows: selectedRows.map((index) => this.unusedHistory[index]) });
+    }
   }
 
-  onTextFieldChange(textFieldValue) {
+  onItemRowSelection(selectedRows) {
+    if (selectedRows === 'all') {
+      this.setState({ selectedItemRows: this.state.items.map(([ item ], index) => item) });
+    }
+    else if (selectedRows === 'none') {
+      this.setState({ selectedItemRows: [] });
+    }
+    else {
+      this.setState({ selectedItemRows: selectedRows.map((index) => this.state.items[index]) });
+    }
+  }
+
+  onQuantityChange(index) {
+    if (!this.onQuantityChanges[index]) {
+      this.onQuantityChanges[index] =
+        ({ target: { value } }) =>
+          this.setItems(
+            this.state.items.slice(0, index)
+            .concat([ [ this.state.items[index][0], parseInt(value, 10) ] ])
+            .concat(this.state.items.slice(index + 1))
+          );
+    }
+    return this.onQuantityChanges[index];
+  }
+
+  onTextFieldChange({ target: { value: textFieldValue } }) {
     this.setState({ textFieldValue });
   }
 
-  stopPropagation(event) {
-    event.stopPropagation();
+  stopPropagation(e) {
+    e.stopPropagation();
     return false;
   }
 
@@ -200,6 +217,10 @@ class App extends React.PureComponent {
       ...state,
       items
     });
+  }
+
+  get unusedHistory() {
+    return this.state.history.filter(this.filterItemsFromHistory);
   }
 
   render() {
@@ -214,7 +235,7 @@ class App extends React.PureComponent {
           <Table
             allRowsSelected={this.allRowsSelected}
             multiSelectable
-            onRowSelection={this.onRowSelection}
+            onRowSelection={this.onItemRowSelection}
           >
             <TableHeader enableSelectAll={this.state.items.length > 1}>
               <TableRow>
@@ -231,7 +252,7 @@ class App extends React.PureComponent {
             >
               {
                 this.state.items.length > 0
-                ? this.state.items.map(this.item)
+                ? this.state.items.map(this.mapItems)
                 : <TableRow selectable={false}>
                     <TableRowColumn colSpan="2">
                       <em children="There are no items on the shopping list." />
@@ -243,9 +264,7 @@ class App extends React.PureComponent {
               <TableRow>
                 <TableRowColumn
                   colSpan="2"
-                  style={{
-                    textAlign: 'center'
-                  }}
+                  style={tfootStyle}
                 >
                   <div id="controls">
                     {
@@ -256,33 +275,22 @@ class App extends React.PureComponent {
                       )
                       ? <RaisedButton
                           label="Delete Selected"
-                          onClick={this.onDeleteSelected}
+                          onClick={this.onDeleteSelectedItems}
                           secondary
                         />
                       : [
-                          <AutoComplete
-                            dataSource={this.dataSource}
-                            filter={AutoComplete.caseInsensitiveFilter}
-                            floatingLabelText="Item"
+                          <TextField
+                            label="Item"
                             key={0}
-                            onUpdateInput={this.onTextFieldChange}
-                            openOnFocus
-                            searchText={this.state.textFieldValue}
+                            name="item"
+                            onChange={this.onTextFieldChange}
                           />,
                           <RaisedButton
                             key={1}
                             label="Add"
                             onClick={this.onAddItemButtonClick}
                             primary
-                          />,
-                          new Set(this.state.history).has(this.state.textFieldValue)
-                          ? <RaisedButton
-                              key={2}
-                              label="Delete"
-                              onClick={this.onDeleteHistory}
-                              secondary
-                            />
-                          : null
+                          />
                         ]
                     }
                   </div>
@@ -290,6 +298,53 @@ class App extends React.PureComponent {
                     children="Notes:"
                     id="notes"
                   />
+                </TableRowColumn>
+              </TableRow>
+            </TableFooter>
+          </Table>
+          <header>
+            <h2>History:</h2>
+          </header>
+          <Table
+            multiSelectable
+            onRowSelection={this.onHistoryRowSelection}
+          >
+            <TableHeader enableSelectAll={false}>
+              <TableRow>
+                <TableHeaderColumn children="Item:" />
+                <TableHeaderColumn
+                  children="Delete:"
+                  className="amount"
+                />
+              </TableRow>
+            </TableHeader>
+            <TableBody showRowHover>
+              {
+                this.unusedHistory.length > 0
+                ? this.unusedHistory.map(this.mapHistory)
+                : <TableRow>
+                    <TableRowColumn colSpan="2">
+                      <em children="There are no items on the shopping list." />
+                    </TableRowColumn>
+                  </TableRow>
+              }
+            </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TableRowColumn
+                  colSpan={2}
+                  style={tfootStyle}
+                >
+                  {
+                    new Set(this.state.history).has(this.state.textFieldValue)
+                      ? <RaisedButton
+                          key={2}
+                          label="Delete"
+                          onClick={this.onDeleteHistory}
+                          secondary
+                        />
+                      : null
+                  }
                 </TableRowColumn>
               </TableRow>
             </TableFooter>
