@@ -1,5 +1,5 @@
 #controls {
-  padding-bottom: 24em;
+  padding-bottom: 4em;
 }
 
 #controls > div {
@@ -11,6 +11,7 @@ h1, h2 {
   font-family: "Roboto", sans-serif;
   font-size: 1.5em;
   font-weight: 500;
+  margin: 0;
   text-align: center;
 }
 
@@ -29,20 +30,12 @@ header > div {
 }
 
 @media screen {
-  .amount {
-    width: 256px;
-  }
-
   #notes {
     display: none;
   }
 }
 
 @media print {
-  .amount {
-    width: 128px;
-  }
-
   #controls {
     display: none;
   }

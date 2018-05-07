@@ -1,4 +1,4 @@
-export default (A, B) => {
+export default ({ item: A }, { item: B }) => {
   const a = A.toLowerCase();
   const b = B.toLowerCase();
   if (a < b) {

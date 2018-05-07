@@ -1,4 +1,4 @@
-export default ([ a ], [ b ]) => {
+export default ({ item: a }, { item: b }) => {
   if (a < b) {
     return -1;
   }
