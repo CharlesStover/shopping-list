@@ -16,9 +16,13 @@ export default class ShoppingHistoryContainer extends React.PureComponent {
   }
 
   onAddSelected() {
+    this.props.onAdd(this.state.selectedRows);
+    this.setState({ selectedRows: NO_ROWS });
   }
 
   onDeleteSelected() {
+    this.props.onDelete(this.state.selectedRows);
+    this.setState({ selectedRows: NO_ROWS });    
   }
 
   onRowSelection(selectedRows) {

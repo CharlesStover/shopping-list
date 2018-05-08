@@ -12,10 +12,6 @@ const columns = [
   {
     title: 'Quantity',
     key: 'qty'
-  },
-  {
-    title: 'Delete',
-    key: 'action'
   }
 ];
 

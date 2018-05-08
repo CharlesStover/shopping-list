@@ -2,8 +2,7 @@ import React from 'react';
 import ShoppingHistory from './components/shopping-history/shopping-history';
 import ShoppingList from './components/shopping-list/shopping-list';
 import displayDate from './constants/display-date';
-import historySort from './constants/history-sort';
-import listSort from './constants/list-sort';
+import itemSort from './constants/item-sort';
 import './App.css';
 
 const NO_HISTORY = [];
@@ -14,11 +13,13 @@ class App extends React.PureComponent {
   constructor(props) {
     super(props);
     this.filterListFromHistory = this.filterListFromHistory.bind(this);
-    this.onHistoryUpdate = this.onHistoryUpdate.bind(this);
+    this.onHistoryAdd = this.onHistoryAdd.bind(this);
+    this.onHistoryDelete = this.onHistoryDelete.bind(this);
     this.onListAdd = this.onListAdd.bind(this);
     this.onListDelete = this.onListDelete.bind(this);
-    const localStorageHistory = localStorage.getItem('history');
-    const localStorageList = localStorage.getItem('list');
+    this.onListQuantityChange = this.onListQuantityChange.bind(this);
+    const localStorageHistory = window.localStorage.getItem('history');
+    const localStorageList = window.localStorage.getItem('list');
     this.state = {
       history:
         localStorageHistory ?
@@ -40,13 +41,34 @@ class App extends React.PureComponent {
     return true;
   }
 
-  onHistoryUpdate(history) {
-    localStorage.setItem('history', JSON.stringify(history));
+  onHistoryAdd(indices) {
+    const unusedHistory = this.unusedHistory;
+    const list = this.state.list.concat(
+      indices.map(
+        (index) => ({
+          item: unusedHistory[index].item,
+          qty: 1
+        })
+      )
+    );
+    list.sort(itemSort);
+    window.localStorage.setItem('list', JSON.stringify(list));
+    this.setState({ list });
+  }
+
+  onHistoryDelete(indices) {
+    const history = [ ...this.state.history ];
+    const unusedHistory = this.unusedHistory;
+    for (const index of indices) {
+      const item = unusedHistory[index].item;
+      history.splice(history.findIndex((historyItem) => historyItem === item), 1);
+    }
+    window.localStorage.setItem('history', JSON.stringify(history));
     this.setState({ history });
   }
 
   onListAdd(item) {
-    const history = [...this.state.history];
+    const history = [ ...this.state.history ];
     let found = false;
     for (const { item: historyItem } of history) {
       if (item === historyItem) {
@@ -56,21 +78,29 @@ class App extends React.PureComponent {
     }
     if (!found) {
       history.push({ item });
-      history.sort(historySort);
-      localStorage.setItem('history', JSON.stringify(history));
+      history.sort(itemSort);
+      window.localStorage.setItem('history', JSON.stringify(history));
     }
     const list = this.state.list.concat([ {
       item,
       qty: 1
     } ]);
-    list.sort(listSort);
-    localStorage.setItem('list', JSON.stringify(list));
+    list.sort(itemSort);
+    window.localStorage.setItem('list', JSON.stringify(list));
     this.setState({ history, list });
   }
 
   onListDelete(rows) {
     const list = this.state.list.filter((item, row) => rows.indexOf(row) === -1);
-    localStorage.setItem('list', JSON.stringify(list));
+    window.localStorage.setItem('list', JSON.stringify(list));
+    this.setState({ list });
+  }
+
+  onListQuantityChange(index, qty) {
+    const list = [ ...this.state.list ];
+    list[index] = { ...list[index] };
+    list[index].qty = qty;
+    window.localStorage.setItem('list', JSON.stringify(list));
     this.setState({ list });
   }
 
@@ -89,7 +119,7 @@ class App extends React.PureComponent {
   }
 
   get unusedHistory() {
-    return this.state.history.filter(this.filterItemsFromHistory);
+    return this.state.history.filter(this.filterListFromHistory);
   }
 
   render() {
@@ -113,14 +143,16 @@ class App extends React.PureComponent {
         list={this.state.list}
         onAdd={this.onListAdd}
         onDelete={this.onListDelete}
+        onQuantityChange={this.onListQuantityChange}
       />,
       <ShoppingHistory
         header={
           <h2 children="History:" />
         }
-        history={this.state.history.filter(this.filterListFromHistory)}
+        history={this.unusedHistory}
         key={1}
-        onUpdate={this.onHistoryUpdate}
+        onAdd={this.onHistoryAdd}
+        onDelete={this.onHistoryDelete}
       />,
       <div
         children="Notes:"

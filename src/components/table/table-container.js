@@ -35,6 +35,7 @@ export default class TableContainer extends React.PureComponent {
   render() {
     return (
       <TableView
+        className={this.props.className}
         columns={this.props.columns}
         header={this.props.header}
         onRowSelection={this.onRowSelection}

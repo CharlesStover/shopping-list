@@ -96,7 +96,7 @@ export default class TableView extends React.PureComponent {
 
   render() {
     return (
-      <section>
+      <section className={this.props.className}>
         <header children={this.props.header} />
         <Table>
           <TableHead>
