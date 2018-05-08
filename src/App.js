@@ -14,7 +14,9 @@ class App extends React.PureComponent {
   constructor(props) {
     super(props);
     this.filterListFromHistory = this.filterListFromHistory.bind(this);
+    this.onHistoryUpdate = this.onHistoryUpdate.bind(this);
     this.onListAdd = this.onListAdd.bind(this);
+    this.onListDelete = this.onListDelete.bind(this);
     const localStorageHistory = localStorage.getItem('history');
     const localStorageList = localStorage.getItem('list');
     this.state = {
@@ -38,10 +40,7 @@ class App extends React.PureComponent {
     return true;
   }
 
-  onHistoryAdd() {
-  }
-
-  onHistoryDelete(history) {
+  onHistoryUpdate(history) {
     localStorage.setItem('history', JSON.stringify(history));
     this.setState({ history });
   }
@@ -70,11 +69,7 @@ class App extends React.PureComponent {
   }
 
   onListDelete(rows) {
-    const rowsSet = new Set(rows);
-    const list = this.state.list.filter(
-      ({ item }) =>
-        !rowsSet.has(item)
-    );
+    const list = this.state.list.filter((item, row) => rows.indexOf(row) === -1);
     localStorage.setItem('list', JSON.stringify(list));
     this.setState({ list });
   }
@@ -125,6 +120,7 @@ class App extends React.PureComponent {
         }
         history={this.state.history.filter(this.filterListFromHistory)}
         key={1}
+        onUpdate={this.onHistoryUpdate}
       />,
       <div
         children="Notes:"

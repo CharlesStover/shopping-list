@@ -30,9 +30,11 @@ export default class ShoppingListerContainer extends React.PureComponent {
     };
   }
 
-  onDeleteSelected() {
+  onDeleteSelected(e) {
+    e.preventDefault();
     this.props.onDelete(this.state.selectedRows);
     this.setState({ selectedRows: NO_ROWS });
+    return false;
   }
 
   onItemAdd(e) {
