@@ -6,8 +6,11 @@ const NO_ROWS = [];
 
 const qtyInputProps = {
   min: 1,
-  size: 1,
   step: 1
+};
+
+const qtyInputStyle = {
+  width: '128px'
 };
 
 export default class ShoppingListerContainer extends React.PureComponent {
@@ -31,12 +34,18 @@ export default class ShoppingListerContainer extends React.PureComponent {
         ...item,
         qty: (
           <TextField
+            fullWidth
             inputProps={qtyInputProps}
             name="amount"
             onChange={this.onQuantityChange(index)}
             onClick={this.stopPropagation}
+            style={qtyInputStyle}
             type="number"
-            value={item.qty}
+            value={
+              item.qty === 0 ?
+                '' :
+                item.qty.toString()
+            }
           />
         )
       })
@@ -86,7 +95,12 @@ export default class ShoppingListerContainer extends React.PureComponent {
     if (!this.onQuantityChanges[index]) {
       this.onQuantityChanges[index] =
         ({ target: { value } }) =>
-          this.props.onQuantityChange(index, parseInt(value, 10));
+          this.props.onQuantityChange(
+            index,
+            value === '' ?
+              0 :
+              parseInt(value, 10)
+          );
     }
     return this.onQuantityChanges[index];
   }
