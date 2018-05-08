@@ -1,3 +1,4 @@
+import Checkbox from 'material-ui/Checkbox';
 import Table, { TableBody, TableCell, TableFooter, TableHead, TableRow } from 'material-ui/Table';
 import React from 'react';
 import './table.css';
@@ -31,18 +32,23 @@ export default class TableView extends React.PureComponent {
   mapRows(row, index) {
     return (
       <TableRow
-        children={this.mapColumns(row)}
         key={index}
         selected={this.isRowSelected(index)}
-      />
+      >
+        <TableCell className="checkbox">
+          <Checkbox
+          />
+        </TableCell>
+        {this.mapColumns(row)}
+      </TableRow>
     );
   }
 
   get tbody() {
     if (this.props.rows.length === 0) {
       return (
-        <TableRow selectable={false}>
-          <TableCell colSpan="2">
+        <TableRow>
+          <TableCell colSpan={this.props.columns.length}>
             <em children="There are no items in this list." />
           </TableCell>
         </TableRow>
@@ -52,12 +58,29 @@ export default class TableView extends React.PureComponent {
   }
 
   get theadCells() {
-    return this.props.columns.map(({ title }, index) =>
-      <TableCell
-        children={title + ':'}
-        className={index > 0 ? 'action' : null}
-        key={index}
-      />
+    const cells = [];
+    if (this.props.rows.length > 0) {
+      cells.push(
+        <TableCell
+          className="checkbox"
+          key="thead-checkbox"
+        >
+          <Checkbox
+            checked={this.props.selectAllRowsChecked}
+            disabled={this.props.selectAllRowsDisabled}
+            onChange={this.props.onSelectAllRows}
+          />
+        </TableCell>
+      );
+    }
+    return cells.concat(
+      this.props.columns.map(({ title }, index) =>
+        <TableCell
+          children={title + ':'}
+          className={index > 0 ? 'action' : null}
+          key={index}
+        />
+      )
     );
   }
 
@@ -65,25 +88,19 @@ export default class TableView extends React.PureComponent {
     return (
       <section>
         <header children={this.props.header} />
-        <Table
-          allRowsSelected={this.props.allRowsSelected}
-          multiSelectable
-          onRowSelection={this.props.onRowSelection}
-        >
-          <TableHead enableSelectAll={this.props.rows.length > 1}>
-            <TableRow children={this.theadCells} />
+        <Table>
+          <TableHead>
+            <TableRow>
+              {this.theadCells}
+            </TableRow>
           </TableHead>
-          <TableBody
-            children={this.tbody}
-            deselectOnClickaway={false}
-            showRowHover
-          />
+          <TableBody children={this.tbody} />
           <TableFooter>
             <TableRow>
               <TableCell
                 children={this.props.tfoot}
                 className="tfoot"
-                colSpan={this.props.columns.length}
+                colSpan={this.props.columns.length + 1}
                 style={tfootStyle}
               />
             </TableRow>

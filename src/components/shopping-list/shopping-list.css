@@ -1,3 +1,15 @@
 .shopping-list-button {
-  margin-left: 1em;
+  margin-left: 1em !important;
+}
+
+.shopping-list-tfoot-form {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  height: 56px;
+  justify-content: center;
+}
+
+.shopping-list-tfoot-form > div > label {
+  text-align: left;
 }

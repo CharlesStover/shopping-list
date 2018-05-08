@@ -1,5 +1,10 @@
+.checkbox {
+  padding-right: 0 !important;
+  width: 48px;
+}
+
 .tfoot {
-  padding-bottom: 4em;
+  padding-bottom: 4em !important;
 }
 
 #controls > div {
@@ -8,7 +13,7 @@
 
 @media screen {
   .action {
-    width: 256px;
+    width: 176px;
   }
 }
 

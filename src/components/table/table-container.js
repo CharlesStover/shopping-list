@@ -8,45 +8,44 @@ export default class TableContainer extends React.PureComponent {
   constructor(props) {
     super(props);
     this.onRowSelection = this.onRowSelection.bind(this);
-    this.state = {
-      selectedRows: NO_ROWS
-    };
+    this.onSelectAllRows = this.onSelectAllRows.bind(this);
   }
 
-  get allRowsSelected() {
-    return (
-      this.props.selectedRows.length > 0 &&
-      this.props.selectedRows.length === this.props.rows.length
-    );
+  onRowSelection(index) {
+    const indexOf = this.props.selectedRows.indexOf(index);
+    if (indexOf === -1) {
+      this.props.onRowSelection(this.props.selectedRows.concat([ index ]).sort());
+    }
+    else {
+      const selectedRows = [...this.props.selectedRows];
+      selectedRows.splice(indexOf, 1);
+      this.props.onRowSelection(selectedRows);
+    }
   }
 
-  onRowSelection(selectedRows) {
-    if (this.props.onRowSelection) {
-      if (selectedRows === 'all') {
-        this.props.onRowSelection(this.props.rows.map((row) => row[this.props.columns[0].key]));
-      }
-      else if (selectedRows === 'none') {
-        this.props.onRowSelection(NO_ROWS);
-      }
-      else {
-        this.props.onRowSelection(
-          selectedRows.map(
-            (index) =>
-              this.props.rows[index][this.props.columns[0].key]
-          )
-        );
-      }
+  onSelectAllRows() {
+    if (this.props.selectedRows.length === this.props.rows.length) {
+      this.props.onRowSelection(NO_ROWS);
+    }
+    else {
+      this.props.onRowSelection(this.props.rows.map((row, index) => index));
     }
   }
 
   render() {
+    console.log(this.props.rows.length);
     return (
       <TableView
-        allRowsSelected={this.allRowsSelected}
         columns={this.props.columns}
         header={this.props.header}
         onRowSelection={this.onRowSelection}
+        onSelectAllRows={this.onSelectAllRows}
         rows={this.props.rows}
+        selectAllRowsChecked={
+          this.props.rows.length > 1 &&
+          this.props.selectedRows.length === this.props.rows.length
+        }
+        selectAllRowsDisabled={this.props.rows.length < 2}
         selectedRows={this.props.selectedRows}
         tfoot={this.props.tfoot}
       />

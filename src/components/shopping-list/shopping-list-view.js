@@ -24,16 +24,24 @@ export default class ShoppingListView extends React.PureComponent {
   get tfoot() {
     if (this.props.selectedRows.length > 0) {
       return (
-        <Button
-          label="Delete Selected"
-          onClick={this.props.onDeleteSelected}
-          secondary
-          variant="raised"
-        />
+        <form
+          className="shopping-list-tfoot-form"
+          onSubmit={this.props.onDeleteSelected}
+        >
+          <Button
+            children="Delete Selected"
+            color="secondary"
+            type="submit"
+            variant="raised"
+          />
+        </form>
       );
     }
     return (
-      <form onSubmit={this.props.onItemAdd}>
+      <form
+        className="shopping-list-tfoot-form"
+        onSubmit={this.props.onItemAdd}
+      >
         <TextField
           label="Add an Item"
           name="item"
@@ -41,9 +49,9 @@ export default class ShoppingListView extends React.PureComponent {
           value={this.props.itemValue}
         />
         <Button
+          children="Add"
           className="shopping-list-button"
-          label="Add"
-          primary
+          color="primary"
           type="submit"
           variant="raised"
         />
