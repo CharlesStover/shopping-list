@@ -4,7 +4,6 @@ h1, h2 {
   font-size: 1.5em;
   font-weight: 500;
   margin: 0;
-  padding-top: 1em;
   text-align: center;
 }
 
@@ -12,6 +11,7 @@ header {
   align-items: center;
   display: flex;
   flex-direction: row;
+  padding-top: 1em;  
 }
 
 header > div {
@@ -19,6 +19,7 @@ header > div {
 }
 
 #notes {
+  padding-top: 2em;
   text-align: left;
 }
 
@@ -29,16 +30,16 @@ header > div {
 }
 
 @media print {
-  #controls {
+  h1 {
+    font-size: 1em;
+  }
+
+  table > tbody > tr > td:first-child,
+  table > thead > tr > th:first-child {
     display: none;
   }
 
-  td > div > div {
-    display: none;
-  }
-
-  tr > td:first-child,
-  tr > th:first-child {
+  tfoot {
     display: none;
   }
 }
