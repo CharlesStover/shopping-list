@@ -12,10 +12,11 @@ export default class TableView extends React.PureComponent {
   constructor(props) {
     super(props);
     this.mapRows = this.mapRows.bind(this);
+    this.onCheckboxChanges = [];
   }
 
   isRowSelected(index) {
-    return this.props.selectedRows.indexOf(this.props.rows[index][this.props.columns[0].key]) !== -1;
+    return this.props.selectedRows.indexOf(index) !== -1;
   }
 
   mapColumns(row, index) {
@@ -37,11 +38,20 @@ export default class TableView extends React.PureComponent {
       >
         <TableCell className="checkbox">
           <Checkbox
+            checked={this.isRowSelected(index)}
+            onChange={this.onCheckboxChange(index)}
           />
         </TableCell>
         {this.mapColumns(row)}
       </TableRow>
     );
+  }
+
+  onCheckboxChange(index) {
+    if (!this.onCheckboxChanges[index]) {
+      this.onCheckboxChanges[index] = () => this.props.onRowSelection(index);
+    }
+    return this.onCheckboxChanges[index];
   }
 
   get tbody() {

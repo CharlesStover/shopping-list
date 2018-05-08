@@ -33,7 +33,6 @@ export default class TableContainer extends React.PureComponent {
   }
 
   render() {
-    console.log(this.props.rows.length);
     return (
       <TableView
         columns={this.props.columns}
