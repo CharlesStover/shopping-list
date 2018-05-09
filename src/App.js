@@ -61,7 +61,7 @@ class App extends React.PureComponent {
     const unusedHistory = this.unusedHistory;
     for (const index of indices) {
       const item = unusedHistory[index].item;
-      history.splice(history.findIndex((historyItem) => historyItem === item), 1);
+      history.splice(history.findIndex(({ item: historyItem }) => historyItem === item), 1);
     }
     window.localStorage.setItem('history', JSON.stringify(history));
     this.setState({ history });
@@ -102,20 +102,6 @@ class App extends React.PureComponent {
     list[index].qty = qty;
     window.localStorage.setItem('list', JSON.stringify(list));
     this.setState({ list });
-  }
-
-  onHistorySubmit(e) {
-    e.preventDefault();
-    return false;
-  }
-
-  onTextFieldChange({ target: { value: itemValue } }) {
-    this.setState({ itemValue });
-  }
-
-  stopPropagation(e) {
-    e.stopPropagation();
-    return false;
   }
 
   get unusedHistory() {
